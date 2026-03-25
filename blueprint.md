@@ -2,46 +2,46 @@
 
 ## Ringkasan
 
-CEO Journey adalah game simulasi kehidupan yang berfokus pada manajemen strategis sumber daya, keuangan, dan gaya hidup. Dengan antarmuka minimalis, pemain ditantang untuk membuat keputusan cerdas setiap minggu untuk membangun kesuksesan sambil menghindari kebangkrutan atau kematian.
+CEO Journey adalah game simulasi kehidupan yang berfokus pada manajemen strategis sumber daya, keuangan, dan gaya hidup. Dengan antarmuka yang modern, pemain ditantang untuk membuat keputusan cerdas setiap minggu untuk membangun kesuksesan dari nol.
 
-## 1. Perbaikan Bug Kritis & Prioritas Utama
+---
 
-- **Akurasi Pelacakan Keuangan:** Prioritas utama adalah memperbaiki sistem log transaksi untuk memastikan **semua pengeluaran (termasuk pembelian makanan) tercatat secara real-time** pada total pengeluaran mingguan. Bug ini akan diatasi terlebih dahulu.
-- **Kalkulasi Unit Investasi yang Tepat:** Merombak total fungsi pembelian aset untuk **menghilangkan bug kelebihan unit**. Jumlah unit yang diterima harus sama persis dengan yang dibeli.
+## **Visi & Rencana Pengembangan**
 
-## 2. Sistem Status & Sumber Daya Utama
-- **Trio Sumber Daya:** Status utama karakter terdiri dari:
-    - **Kesehatan:** Menentukan kemampuan bekerja dan risiko kematian.
-    - **Kenyang:** Menjaga agar kesehatan dan mood tidak menurun.
-    - **Mood:** Status baru yang menunjukkan tingkat kebahagiaan. Dipengaruhi oleh gaya hidup (tempat tinggal, kendaraan), pekerjaan, dan event. Mood rendah menurunkan performa.
+Berikut adalah peta jalan pengembangan yang menguraikan fitur-fitur yang akan diimplementasikan.
 
-## 3. Sistem Keuangan & Gameplay Lanjutan
-- **Sistem Kelas Pinjaman Bank (Credit Score):
-    -** Pemain akan memiliki **peringkat kredit berbentuk bintang (1-5)**.
-    - Peringkat ini menentukan **plafon maksimal pinjaman** yang bisa diajukan.
-    - Peringkat akan naik seiring dengan meningkatnya kekayaan, histori pembayaran yang baik, dan stabilitas keuangan.
-- **Berita Naratif & Dampak Pasar:**
-    - Fitur berita akan aktif. Setiap event pasar (misal: "Emas Naik") akan disertai dengan **kalimat naratif yang menjelaskan konteks** (misal: "Investor global beralih ke aset aman di tengah ketidakpastian ekonomi.").
-    - Narasi ini memberikan petunjuk strategis kepada pemain.
+### **Fase 1: Pondasi & Pengalaman Inti (Selesai)**
+1.  **Mekanisme Dasar:** Implementasi pergerakan waktu per minggu, status karakter (kesehatan, mood, lapar), dan sistem keuangan awal.
+2.  **Aktivitas Dasar:** Pembelian makanan, pelamaran pekerjaan, pembelian properti, dan investasi sederhana.
+3.  **UI Dashboard Modern:** Desain ulang UI dari `BottomNavigationBar` menjadi dashboard sentris dengan kartu navigasi berbasis ikon.
 
-## 4. Konten & Realisme
-- **Harga Makanan Mingguan:** Harga semua item makanan di marketplace akan disesuaikan untuk merefleksikan **biaya belanja kebutuhan selama satu minggu**.
+### **Fase 2: Peningkatan UI & Alur Game (Sedang Dikerjakan)**
+1.  **Menu Utama:** Membuat layar menu utama dengan opsi "Permainan Baru", "Lanjutkan", dan "Pengaturan" untuk alur masuk yang profesional.
+2.  **Kustomisasi Pemain:** Memungkinkan pemain memasukkan nama karakter mereka saat memulai permainan baru.
+3.  **Informasi Status yang Jelas:** Menampilkan persentase numerik (`85%`) pada bar status (Kesehatan, Mood, Kenyang) untuk memberikan informasi yang lebih presisi.
+4.  **Kondisi Game Over:** Mengimplementasikan layar "Game Over" saat kesehatan pemain mencapai 0, dengan opsi untuk memulai kembali.
 
-## 5. UI/UX & Optimisasi
-- **Reset Log Aktivitas:** Untuk menjaga keringanan UI, daftar log aktivitas akan **dikosongkan secara otomatis setiap kali karakter berulang tahun** (setiap 52 minggu).
+### **Fase 3: Sistem Karir & Pendidikan (Selanjutnya)**
+1.  **Model Data Baru:** Membuat kelas untuk `Education` (dengan properti seperti `name`, `durationInWeeks`, `cost`, `skillPointsAwarded`) dan `Skill`.
+2.  **Sistem Pendidikan:**
+    *   Membuat halaman "Pusat Pendidikan" di mana pemain dapat mendaftar untuk jenjang:
+        *   SMA (prasyarat awal)
+        *   Diploma (D3)
+        *   Sarjana (S1)
+        *   Magister (S2)
+        *   Doktor (S3)
+    *   Setiap jenjang akan memiliki durasi (dalam minggu) dan biaya yang realistis dalam konteks game.
+3.  **Sistem Pekerjaan Ditingkatkan:**
+    *   Setiap pekerjaan di `_jobBoard` akan memiliki prasyarat `requiredSkills`.
+    *   Pemain hanya bisa melamar jika `character.skills` memenuhi syarat.
 
-## Rencana Pengembangan
+### **Fase 4: Sistem Keuangan & Bisnis Lanjutan (Masa Depan)**
+1.  **Fitur Perbankan:**
+    *   Membuat halaman "Bank" di dashboard.
+    *   **Simpanan/Deposito:** Pemain dapat menyimpan uang dan menerima bunga mingguan.
+    *   **Pinjaman:** Pemain dapat mengajukan pinjaman dengan sistem skor kredit yang memengaruhi plafon dan bunga.
+2.  **Fitur Bisnis:**
+    *   Membuat halaman "Bisnis" di dashboard.
+    *   Pemain dapat mendirikan bisnis dari berbagai sektor (misal: Kafe, Startup Teknologi, dll.).
+    *   **Mekanisme:** Membutuhkan modal awal, memiliki biaya operasional mingguan, dan menghasilkan pendapatan. Akan ada elemen risiko dan peluang.
 
-### **Fase 1: Perbaikan Bug & Implementasi Sistem Mood (Saat ini)**
-1.  **Perbaiki Bug Finansial & Investasi:** Mengerjakan dua bug kritis yang telah diidentifikasi sebagai prioritas absolut.
-2.  **Implementasikan Status Mood:** Menambahkan "Mood" ke dalam model data karakter dan menampilkannya di UI profil.
-3.  **Hubungkan Mood dengan Gaya Hidup:** Membuat logika awal di mana kualitas tempat tinggal dan kendaraan memberikan bonus pasif pada Mood setiap minggu.
-
-### **Fase 2: Implementasi Fitur Keuangan Lanjutan & Narasi**
-1.  **Bangun Sistem Peringkat Kredit:** Mengembangkan logika untuk sistem bintang pada fitur pinjaman bank.
-2.  **Implementasi Berita Naratif:** Membuat data set untuk event dan narasi yang menyertainya, lalu mengintegrasikannya ke dalam UI.
-3.  **Kaji Ulang Harga Makanan:** Menyesuaikan semua harga item makanan di marketplace.
-
-### **Fase 3: Optimisasi & Penambahan Konten**
-1.  **Implementasi Reset Log Aktivitas:** Menambahkan fungsi untuk membersihkan log saat ulang tahun karakter.
-2.  Memperluas daftar event, pekerjaan, aset, dan pilihan gaya hidup.
