@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state.dart';
-import '../models/models.dart'; // Impor yang hilang
+import '../models/models.dart';
 import '../utils/utils.dart';
 import 'activity_log_screen.dart';
 import 'bank_screen.dart';
@@ -24,27 +24,30 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<GameState>(context, listen: false).addListener(_handleGameStateChanges);
+      Provider.of<GameState>(context, listen: false)
+          .addListener(_handleGameStateChanges);
     });
   }
 
   @override
   void dispose() {
-    Provider.of<GameState>(context, listen: false).removeListener(_handleGameStateChanges);
+    Provider.of<GameState>(context, listen: false)
+        .removeListener(_handleGameStateChanges);
     super.dispose();
   }
 
   void _handleGameStateChanges() {
     final gameState = Provider.of<GameState>(context, listen: false);
-    if (gameState.snackbarMessage != null) {
+    if (mounted && gameState.snackbarMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(gameState.snackbarMessage!),
           backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
-    if (gameState.isGameOver) {
+    if (mounted && gameState.isGameOver) {
       _showGameOverDialog();
     }
   }
@@ -55,11 +58,12 @@ class _GameScreenState extends State<GameScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Game Over'),
-        content: Text(Provider.of<GameState>(context, listen: false).activityLog.first),
+        content: Text(
+            Provider.of<GameState>(context, listen: false).activityLog.first),
         actions: [
           TextButton(
             onPressed: () {
-              Provider.of<GameState>(context, listen: false).startNewGame("Player"); // Restart
+              Provider.of<GameState>(context, listen: false).startNewGame("Player");
               Navigator.of(context).pop();
             },
             child: const Text('Mulai Lagi'),
@@ -73,7 +77,7 @@ class _GameScreenState extends State<GameScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent, // Make modal background transparent
+      backgroundColor: Colors.transparent,
       builder: (context) => DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.85,
@@ -143,8 +147,8 @@ class _GameScreenState extends State<GameScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => gameState.nextWeek(),
         tooltip: 'Minggu Depan',
-        child: const Icon(Icons.arrow_forward_ios),
         elevation: 4.0,
+        child: const Icon(Icons.arrow_forward_ios),
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
@@ -164,71 +168,112 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildPlayerStatusCard(BuildContext context, Character character) {
     return Card(
-      color: Colors.white.withOpacity(0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 8,
+      shadowColor: Colors.black.withOpacity(0.2),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Player Name and Money
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  character.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black87,
+                  ),
+                ),
+                _buildDotPattern(),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              formatCurrency(character.money),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Usia: ${character.age} • Minggu: ${character.week}',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+            const Divider(height: 32, thickness: 1),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(character.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                Text(formatCurrency(character.money), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.greenAccent)),
+                _buildStatusIndicator(icon: Icons.health_and_safety, value: character.health, color: Colors.red.shade400),
+                _buildStatusIndicator(icon: Icons.sentiment_satisfied, value: character.mood, color: Colors.blue.shade400),
+                _buildStatusIndicator(icon: Icons.fastfood, value: character.hunger, color: Colors.orange.shade400),
               ],
             ),
-            const Divider(height: 24, color: Colors.white24),
-            // Age and Week
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildAgeWeekInfo('Usia', character.age.toString(), 'tahun'),
-                _buildAgeWeekInfo('Minggu', character.week.toString(), 'ke'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Status Percentages
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatusCircle("Health", character.health, Colors.greenAccent),
-                _buildStatusCircle("Mood", character.mood, Colors.blueAccent),
-                _buildStatusCircle("Hunger", character.hunger, Colors.orangeAccent),
-              ],
-            )
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAgeWeekInfo(String label, String value, String suffix) {
-    return Column(
-      children: [
-        Text(label.toUpperCase(), style: const TextStyle(fontSize: 12, color: Colors.white70, letterSpacing: 1.2)),
-        const SizedBox(height: 4),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-            const SizedBox(width: 4),
-            Text(suffix, style: const TextStyle(fontSize: 14, color: Colors.white70)),
-          ],
+  Widget _buildStatusIndicator({required IconData icon, required double value, required Color color}) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: color, size: 18),
+              const SizedBox(width: 6),
+              Text(
+                '${value.toInt()}%',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildStatusCircle(String label, double value, Color color) {
-    return Column(
-      children: [
-        Text(label.toUpperCase(), style: const TextStyle(fontSize: 12, color: Colors.white70, letterSpacing: 1.2)),
-        const SizedBox(height: 8),
-        Text('${value.toInt()}%', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-      ],
+  Widget _buildDotPattern() {
+    return SizedBox(
+      width: 48,
+      height: 32,
+      child: Wrap(
+        spacing: 4,
+        runSpacing: 4,
+        alignment: WrapAlignment.end,
+        children: List.generate(18, (index) {
+          double opacity = (1.0 - ((index % 6) / 7.0)) * 0.5;
+          return Container(
+            width: 4,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(opacity),
+              shape: BoxShape.circle,
+            ),
+          );
+        }),
+      ),
     );
   }
 
