@@ -1,47 +1,41 @@
-# CEO Journey: Simulator Manajemen Kehidupan
+# Blueprint: CEO Journey
 
-## Ringkasan
+## Ringkasan Proyek
 
-CEO Journey adalah game simulasi kehidupan yang berfokus pada manajemen strategis sumber daya, keuangan, dan gaya hidup. Dengan antarmuka yang modern, pemain ditantang untuk membuat keputusan cerdas setiap minggu untuk membangun kesuksesan dari nol.
+CEO Journey adalah game simulasi kehidupan berbasis Flutter yang memungkinkan pemain untuk menavigasi perjalanan karakter dari awal yang sederhana hingga menjadi seorang CEO yang sukses. Game ini menyeimbangkan elemen strategi keuangan, pengembangan diri, dan manajemen waktu dalam antarmuka yang modern dan menarik.
 
----
+## Fitur & Desain Utama
 
-## **Visi & Rencana Pengembangan**
+### 1. Antarmuka & Pengalaman Pengguna (UI/UX)
+- **Desain Modern:** Menggunakan estetika profesional dengan latar belakang gradasi biru tua, kartu putih solid, dan ikonografi yang jelas.
+- **Dashboard Terpusat:** `game_screen.dart` menampilkan kartu status utama yang terinspirasi dari desain GoPay, merangkum semua informasi vital pemain (Nama, Saldo, Usia, Minggu, dan status Kesehatan/Mood/Kenyang dalam bentuk *chip*).
+- **Navigasi Intuitif:** Menggunakan `GridView` untuk akses cepat ke fitur-fitur utama (Pekerjaan, Bisnis, Belanja, dll.) dan `BottomAppBar` dengan `FloatingActionButton` untuk aksi utama (minggu berikutnya) dan navigasi sekunder.
+- **Umpan Balik Responsif:** Memberikan notifikasi `SnackBar` untuk aksi yang gagal (misalnya, dana tidak cukup) dan dialog "Game Over" yang jelas saat kondisi kekalahan terpenuhi.
 
-Berikut adalah peta jalan pengembangan yang menguraikan fitur-fitur yang akan diimplementasikan.
+### 2. Sistem Game Inti
+- **Manajemen Status:** Pemain harus menyeimbangkan tiga atribut utama: **Kesehatan**, **Mood**, dan **Kenyang**. Status ini menurun setiap minggu dan dapat dipulihkan dengan membeli makanan atau item lainnya.
+- **Sistem Waktu:** Permainan berjalan dalam siklus mingguan. Setiap minggu, status diperbarui, pendapatan diterima, dan event acak dapat terjadi.
+- **Keuangan:** Pemain mengelola uang tunai, rekening bank (tabungan dan pinjaman), dan berinvestasi di berbagai aset.
+- **Kondisi Kalah:** Permainan berakhir (Game Over) jika kesehatan pemain mencapai nol.
 
-### **Fase 1: Pondasi & Pengalaman Inti (Selesai)**
-1.  **Mekanisme Dasar:** Implementasi pergerakan waktu per minggu, status karakter (kesehatan, mood, lapar), dan sistem keuangan awal.
-2.  **Aktivitas Dasar:** Pembelian makanan, pelamaran pekerjaan, pembelian properti, dan investasi sederhana.
-3.  **UI Dashboard Modern:** Desain ulang UI dari `BottomNavigationBar` menjadi dashboard sentris dengan kartu navigasi berbasis ikon.
+### 3. Fitur Gameplay
+- **Sistem Karier (Update Terbaru):**
+  - **Dua Jenis Pekerjaan:**
+    - **Pekerjaan Tetap (`permanent`):** Memberikan gaji mingguan yang stabil. Pemain hanya bisa memiliki satu pekerjaan tetap pada satu waktu dan tidak bisa bekerja sambil menempuh pendidikan.
+    - **Pekerjaan Lepas (`freelance`):** Berbasis proyek dengan durasi tertentu (minggu). Bayaran diberikan penuh setelah proyek selesai. Pemain dapat mengambil beberapa pekerjaan lepas secara bersamaan.
+  - **Papan Pekerjaan:** Daftar pekerjaan diperbarui secara berkala, menawarkan berbagai peluang di berbagai sektor dengan persyaratan keterampilan yang berbeda.
+- **Pendidikan:** Pemain dapat mendaftar di program pendidikan untuk memperoleh keterampilan baru, yang membuka akses ke pekerjaan dengan gaji lebih tinggi.
+- **Bisnis:** Memungkinkan pemain untuk membeli dan mengelola bisnis yang menghasilkan pendapatan pasif mingguan.
+- **Investasi:** Pemain dapat membeli dan menjual aset seperti saham dan properti.
+- **Belanja:** Tempat untuk membeli item-item yang dapat memulihkan status (misalnya, makanan).
+- **Bank:** Mengelola tabungan untuk mendapatkan bunga atau mengambil pinjaman.
 
-### **Fase 2: Peningkatan UI & Alur Game (Sedang Dikerjakan)**
-1.  **Menu Utama:** Membuat layar menu utama dengan opsi "Permainan Baru", "Lanjutkan", dan "Pengaturan" untuk alur masuk yang profesional.
-2.  **Kustomisasi Pemain:** Memungkinkan pemain memasukkan nama karakter mereka saat memulai permainan baru.
-3.  **Informasi Status yang Jelas:** Menampilkan persentase numerik (`85%`) pada bar status (Kesehatan, Mood, Kenyang) untuk memberikan informasi yang lebih presisi.
-4.  **Kondisi Game Over:** Mengimplementasikan layar "Game Over" saat kesehatan pemain mencapai 0, dengan opsi untuk memulai kembali.
+### 4. Rencana Fitur (Coming Soon)
+- **Sosial:** Fitur untuk berinteraksi dengan NPC, membangun hubungan, dan membuka event atau peluang baru.
+- **Inventori:** Sistem untuk mengelola item-item yang dimiliki pemain selain aset keuangan.
 
-### **Fase 3: Sistem Karir & Pendidikan (Selanjutnya)**
-1.  **Model Data Baru:** Membuat kelas untuk `Education` (dengan properti seperti `name`, `durationInWeeks`, `cost`, `skillPointsAwarded`) dan `Skill`.
-2.  **Sistem Pendidikan:**
-    *   Membuat halaman "Pusat Pendidikan" di mana pemain dapat mendaftar untuk jenjang:
-        *   SMA (prasyarat awal)
-        *   Diploma (D3)
-        *   Sarjana (S1)
-        *   Magister (S2)
-        *   Doktor (S3)
-    *   Setiap jenjang akan memiliki durasi (dalam minggu) dan biaya yang realistis dalam konteks game.
-3.  **Sistem Pekerjaan Ditingkatkan:**
-    *   Setiap pekerjaan di `_jobBoard` akan memiliki prasyarat `requiredSkills`.
-    *   Pemain hanya bisa melamar jika `character.skills` memenuhi syarat.
-
-### **Fase 4: Sistem Keuangan & Bisnis Lanjutan (Masa Depan)**
-1.  **Fitur Perbankan:**
-    *   Membuat halaman "Bank" di dashboard.
-    *   **Simpanan/Deposito:** Pemain dapat menyimpan uang dan menerima bunga mingguan.
-    *   **Pinjaman:** Pemain dapat mengajukan pinjaman dengan sistem skor kredit yang memengaruhi plafon dan bunga.
-2.  **Fitur Bisnis:**
-    *   Membuat halaman "Bisnis" di dashboard.
-    *   Pemain dapat mendirikan bisnis dari berbagai sektor (misal: Kafe, Startup Teknologi, dll.).
-    *   **Mekanisme:** Membutuhkan modal awal, memiliki biaya operasional mingguan, dan menghasilkan pendapatan. Akan ada elemen risiko dan peluang.
-
+## Struktur Kode Utama
+- `main.dart`: Titik masuk aplikasi, menginisialisasi `GameState`.
+- `game_state.dart`: Otak dari permainan, mengelola semua logika status, progres, dan aksi pemain.
+- `models/models.dart`: Mendefinisikan semua struktur data inti seperti `Character`, `Job`, `Education`, dll.
+- `screens/`: Berisi semua file UI untuk setiap fitur utama (cth., `game_screen.dart`, `job_screen.dart`).

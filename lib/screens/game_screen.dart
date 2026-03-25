@@ -73,7 +73,16 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  void _showModal(BuildContext context, Widget screen) {
+  void _showModal(BuildContext context, Widget screen, {bool comingSoon = false}) {
+    if (comingSoon) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fitur ini sedang dalam pengembangan!'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -132,10 +141,10 @@ class _GameScreenState extends State<GameScreen> {
                     children: <Widget>[
                       _buildNavCard(context, icon: Icons.work, label: "Pekerjaan", onTap: () => _showModal(context, const JobScreen())),
                       _buildNavCard(context, icon: Icons.business_center, label: "Bisnis", onTap: () => _showModal(context, const BusinessScreen())),
+                      _buildNavCard(context, icon: Icons.people, label: "Sosial", onTap: () => _showModal(context, const SizedBox(), comingSoon: true)),
+                      _buildNavCard(context, icon: Icons.inventory, label: "Inventori", onTap: () => _showModal(context, const SizedBox(), comingSoon: true)),
                       _buildNavCard(context, icon: Icons.shopping_cart, label: "Belanja", onTap: () => _showModal(context, const ShopScreen())),
                       _buildNavCard(context, icon: Icons.account_balance, label: "Bank", onTap: () => _showModal(context, const BankScreen())),
-                      _buildNavCard(context, icon: Icons.school, label: "Pendidikan", onTap: () => _showModal(context, const EducationScreen())),
-                      _buildNavCard(context, icon: Icons.history_edu, label: "Log", onTap: () => _showModal(context, ActivityLogScreen(log: gameState.activityLog))),
                     ],
                   ),
                 ),
@@ -158,7 +167,10 @@ class _GameScreenState extends State<GameScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             _buildBottomNavIcon(context, icon: Icons.person, label: "Profil", onTap: () => _showModal(context, const ProfileScreen())),
+            _buildBottomNavIcon(context, icon: Icons.school, label: "Edukasi", onTap: () => _showModal(context, const EducationScreen())),
+            const SizedBox(width: 40), // Spacer for the FAB
             _buildBottomNavIcon(context, icon: Icons.trending_up, label: "Investasi", onTap: () => _showModal(context, const InvestmentScreen())),
+            _buildBottomNavIcon(context, icon: Icons.history_edu, label: "Log", onTap: () => _showModal(context, ActivityLogScreen(log: gameState.activityLog))),
           ],
         ),
       ),
@@ -302,10 +314,14 @@ class _GameScreenState extends State<GameScreen> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(30),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [Icon(icon, color: Colors.white, size: 24), const SizedBox(height: 4), Text(label, style: const TextStyle(color: Colors.white, fontSize: 12))],
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(height: 2), // Reduced spacing
+            Text(label, style: const TextStyle(color: Colors.white, fontSize: 11)), // Slightly smaller font
+          ],
         ),
       ),
     );

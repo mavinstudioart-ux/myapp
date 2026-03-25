@@ -1,71 +1,108 @@
-import 'dart:math';
+import 'package:flutter/material.dart';
+
+enum JobType { permanent, freelance }
 
 class Character {
-  String name = "Player";
+  String name = 'Player';
+  String? profileImagePath;
   int age = 18;
   int week = 1;
-  double money = 5000000; // Uang tunai
-  BankAccount bankAccount = BankAccount();
-  List<Business> businesses = [];
+  double money = 5000000;
   double health = 100;
+  double mood = 100;
   double hunger = 100;
-  double mood = 70;
+  List<String> skills = ['SMA'];
   Job? currentJob;
+  List<ActiveFreelanceJob> activeFreelanceJobs = [];
   Education? currentEducation;
   int educationWeeksLeft = 0;
-  List<Property> properties = [];
+  List<Business> businesses = [];
   List<Investment> investments = [];
-  List<String> skills = ["SMA"];
-  String? profileImagePath;
+  List<Property> properties = [];
+  BankAccount bankAccount = BankAccount();
 
-  bool isStudying() => educationWeeksLeft > 0;
+  double get netWorth =>
+      money +
+      bankAccount.savings +
+      investments.fold(0, (sum, item) => sum + (item.price * item.units)) +
+      properties.fold(0, (sum, item) => sum + item.price) -
+      bankAccount.loan;
 
-  double get netWorth {
-    double assetValue = money + bankAccount.savings;
-    assetValue += properties.fold(0, (prev, p) => prev + p.price);
-    assetValue += investments.fold(0, (prev, i) => prev + (i.price * i.units));
-    assetValue += businesses.fold(0, (prev, b) => prev + b.capitalCost);
-    return assetValue - bankAccount.loan;
-  }
+  bool isStudying() => currentEducation != null && educationWeeksLeft > 0;
 
   void reset() {
-    name = "Player";
+    name = 'Player';
+    profileImagePath = null;
     age = 18;
     week = 1;
     money = 5000000;
     health = 100;
+    mood = 100;
     hunger = 100;
-    mood = 70;
+    skills = ['SMA'];
     currentJob = null;
+    activeFreelanceJobs = [];
     currentEducation = null;
     educationWeeksLeft = 0;
-    properties.clear();
-    investments.clear();
-    businesses.clear();
-    bankAccount.reset();
-    skills = ["SMA"];
-    profileImagePath = null;
+    businesses = [];
+    investments = [];
+    properties = [];
+    bankAccount = BankAccount();
   }
 }
 
-class BankAccount {
-  double savings = 0;
-  double loan = 0;
-  final double savingsInterestRate = 0.005; // 0.5% per week
-  final double loanInterestRate = 0.015; // 1.5% per week
-  void reset() {
-    savings = 0;
-    loan = 0;
-  }
+class Job {
+  final String title;
+  final String sector;
+  final String requiredSkill;
+  final JobType jobType;
+  final double? salary; // Mingguan, untuk pekerjaan tetap
+  final double? payout; // Total, untuk freelance
+  final int? durationInWeeks; // Untuk freelance
+
+  Job({
+    required this.title,
+    required this.sector,
+    required this.requiredSkill,
+    required this.jobType,
+    this.salary,
+    this.payout,
+    this.durationInWeeks,
+  });
+}
+
+class ActiveFreelanceJob {
+  final Job job;
+  int weeksLeft;
+
+  ActiveFreelanceJob({required this.job, required this.weeksLeft});
+}
+
+class Education {
+  String name;
+  String description;
+  int durationInWeeks;
+  double cost;
+  String skillAwarded;
+  String requiredSkill;
+
+  Education({
+    required this.name,
+    required this.description,
+    required this.durationInWeeks,
+    required this.cost,
+    required this.skillAwarded,
+    this.requiredSkill = "",
+  });
 }
 
 class Business {
-  final String name;
-  final String sector;
-  final double capitalCost;
-  final double weeklyOperatingCost;
-  final double baseWeeklyRevenue;
-  final double volatility;
+  String name;
+  String sector;
+  double capitalCost;
+  double weeklyOperatingCost;
+  double baseWeeklyRevenue;
+  double volatility;
 
   Business({
     required this.name,
@@ -77,47 +114,43 @@ class Business {
   });
 
   double calculateWeeklyRevenue() {
-    final randomFactor = (Random().nextDouble() * 2 - 1) * volatility;
-    return baseWeeklyRevenue * (1 + randomFactor);
+    // Implementasi logika pendapatan bisnis
+    return baseWeeklyRevenue;
   }
 }
 
-class Job {
-  final String title;
-  final String sector;
-  final double salary;
-  final String requiredSkill;
-  Job({required this.title, required this.sector, required this.salary, required this.requiredSkill});
-}
-
-class Education {
-  final String name;
-  final String description;
-  final int durationInWeeks;
-  final double cost;
-  final String skillAwarded;
-  final String requiredSkill;
-  Education({required this.name, required this.description, required this.durationInWeeks, required this.cost, required this.skillAwarded, this.requiredSkill = "SMA"});
-}
-
-class Property {
-  final String name;
-  final double price;
-  final double weeklyIncome;
-  Property({required this.name, required this.price, required this.weeklyIncome});
-}
-
 class Investment {
-  final String name;
+  String name;
   double price;
   double units;
+
   Investment({required this.name, required this.price, this.units = 0});
 }
 
 class Food {
-  final String name;
-  final double price;
-  final double healthBonus;
-  final double moodBonus;
-  Food({required this.name, required this.price, required this.healthBonus, required this.moodBonus});
+  String name;
+  double price;
+  int healthBonus;
+  int moodBonus;
+
+  Food(
+      {required this.name,
+      required this.price,
+      this.healthBonus = 0,
+      this.moodBonus = 0});
+}
+
+class Property {
+  String name;
+  double price;
+  double weeklyIncome;
+
+  Property({required this.name, required this.price, required this.weeklyIncome});
+}
+
+class BankAccount {
+  double savings = 0;
+  double loan = 0;
+  double savingsInterestRate = 0.005; // 0.5% per minggu
+  double loanInterestRate = 0.02; // 2% per minggu
 }

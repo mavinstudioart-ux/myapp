@@ -54,11 +54,17 @@ class GameState extends ChangeNotifier {
   void _generateJobs() {
     _jobBoard.clear();
     _jobBoard.addAll([
-      Job(title: "Kasir Toko", sector: "Retail", salary: 800000, requiredSkill: "SMA"),
-      Job(title: "Staf Admin", sector: "Kantoran", salary: 1000000, requiredSkill: "SMA"),
-      Job(title: "Junior Programmer", sector: "Teknologi", salary: 2500000, requiredSkill: "D3 TI"),
-      Job(title: "Manajer Pemasaran", sector: "Bisnis", salary: 5000000, requiredSkill: "S1 Bisnis"),
-      Job(title: "Direktur Keuangan", sector: "Korporat", salary: 15000000, requiredSkill: "S2 Manajemen"),
+      // Pekerjaan Tetap
+      Job(title: "Kasir Toko", sector: "Retail", salary: 800000, requiredSkill: "SMA", jobType: JobType.permanent),
+      Job(title: "Staf Admin", sector: "Kantoran", salary: 1000000, requiredSkill: "SMA", jobType: JobType.permanent),
+      Job(title: "Junior Programmer", sector: "Teknologi", salary: 2500000, requiredSkill: "D3 TI", jobType: JobType.permanent),
+      Job(title: "Manajer Pemasaran", sector: "Bisnis", salary: 5000000, requiredSkill: "S1 Bisnis", jobType: JobType.permanent),
+      Job(title: "Direktur Keuangan", sector: "Korporat", salary: 15000000, requiredSkill: "S2 Manajemen", jobType: JobType.permanent),
+      // Pekerjaan Freelance
+      Job(title: "Entry Data Sederhana", sector: "Admin", payout: 400000, durationInWeeks: 2, requiredSkill: "SMA", jobType: JobType.freelance),
+      Job(title: "Desain Logo UKM", sector: "Kreatif", payout: 1500000, durationInWeeks: 3, requiredSkill: "SMA", jobType: JobType.freelance),
+      Job(title: "Buat Website Landing Page", sector: "Teknologi", payout: 5000000, durationInWeeks: 4, requiredSkill: "D3 TI", jobType: JobType.freelance),
+      Job(title: "Riset Pasar Produk Baru", sector: "Bisnis", payout: 8000000, durationInWeeks: 6, requiredSkill: "S1 Bisnis", jobType: JobType.freelance),
     ]);
   }
 
@@ -66,6 +72,7 @@ class GameState extends ChangeNotifier {
     if (isGameOver) return;
     character.week++;
 
+    // Proses Pendidikan
     if (character.isStudying()) {
       character.educationWeeksLeft--;
       logActivity("Belajar untuk ${character.currentEducation!.name}. Sisa ${character.educationWeeksLeft} minggu.");
@@ -77,14 +84,30 @@ class GameState extends ChangeNotifier {
       }
     }
 
-    double totalIncome = 0;
-    if (character.currentJob != null && !character.isStudying()) {
-      totalIncome += character.currentJob!.salary;
+    // Proses Pekerjaan Lepas (Freelance)
+    List<ActiveFreelanceJob> completedJobs = [];
+    for (var freelanceJob in character.activeFreelanceJobs) {
+      freelanceJob.weeksLeft--;
+      if (freelanceJob.weeksLeft <= 0) {
+        character.money += freelanceJob.job.payout!;
+        logActivity("Proyek freelance '${freelanceJob.job.title}' selesai! Bayaran diterima: ${formatCurrency(freelanceJob.job.payout!)}");
+        completedJobs.add(freelanceJob);
+      }
+    }
+    character.activeFreelanceJobs.removeWhere((job) => completedJobs.contains(job));
+
+    // Proses Pendapatan Mingguan
+    double weeklyIncome = 0;
+    if (character.currentJob != null && character.currentJob!.jobType == JobType.permanent) {
+      weeklyIncome += character.currentJob!.salary!;
     }
     for (var prop in character.properties) {
-      totalIncome += prop.weeklyIncome;
+      weeklyIncome += prop.weeklyIncome;
     }
+    character.money += weeklyIncome;
+    if (weeklyIncome > 0) logActivity("Pendapatan mingguan (gaji & properti): ${formatCurrency(weeklyIncome)}");
 
+    // Proses Keuangan & Status Lainnya...
     if (character.bankAccount.savings > 0) {
       double interest = character.bankAccount.savings * character.bankAccount.savingsInterestRate;
       character.bankAccount.savings += interest;
@@ -95,16 +118,12 @@ class GameState extends ChangeNotifier {
       character.bankAccount.loan += interest;
       logActivity("Bunga pinjaman ditambahkan: ${formatCurrency(interest)}");
     }
-
     for (var biz in character.businesses) {
       double revenue = biz.calculateWeeklyRevenue();
       double profit = revenue - biz.weeklyOperatingCost;
       character.money += profit;
       logActivity(profit >= 0 ? "Bisnis ${biz.name} menghasilkan profit: ${formatCurrency(profit)}" : "Bisnis ${biz.name} mengalami kerugian: ${formatCurrency(profit.abs())}");
     }
-
-    character.money += totalIncome;
-    if (totalIncome > 0) logActivity("Total pendapatan pasif & gaji: ${formatCurrency(totalIncome)}");
 
     character.hunger = max(0, character.hunger - 7);
     character.mood = max(0, character.mood - 3);
@@ -135,13 +154,23 @@ class GameState extends ChangeNotifier {
   }
 
   void applyForJob(Job job) {
-    if (character.skills.contains(job.requiredSkill)) {
-      character.currentJob = job;
-      logActivity("Selamat! Anda sekarang adalah ${job.title}.");
-      notifyListeners();
-    } else {
-      setSnackbar("Syarat tidak terpenuhi: ${job.requiredSkill}");
+    if (!character.skills.contains(job.requiredSkill)) {
+      setSnackbar("Kualifikasi tidak terpenuhi: ${job.requiredSkill}");
+      return;
     }
+
+    if (job.jobType == JobType.permanent) {
+      if (character.isStudying()) {
+        setSnackbar("Tidak bisa mengambil pekerjaan tetap saat sedang menempuh pendidikan.");
+        return;
+      }
+      character.currentJob = job;
+      logActivity("Selamat! Anda sekarang bekerja sebagai ${job.title}.");
+    } else { // Freelance
+      character.activeFreelanceJobs.add(ActiveFreelanceJob(job: job, weeksLeft: job.durationInWeeks!));
+      logActivity("Anda mengambil proyek freelance: ${job.title} (${job.durationInWeeks} minggu).");
+    }
+    notifyListeners();
   }
 
   void enrollInEducation(Education course) {
@@ -165,6 +194,7 @@ class GameState extends ChangeNotifier {
     logActivity("Mendaftar di ${course.name}. Biaya: ${formatCurrency(course.cost)}");
     notifyListeners();
   }
+  // ... sisa fungsi (buyFood, buyProperty, dll. tidak berubah)
 
   void buyFood(Food food) {
     if (character.money >= food.price) {
